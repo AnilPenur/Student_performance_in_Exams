@@ -6,6 +6,7 @@ import sys
 from src.logger import logging
 from src.exception import CustomException_ANIL
 
+from sklearn.metrics import r2_score
 
 
 def save_object(file_path:str, obj):
@@ -19,3 +20,16 @@ def save_object(file_path:str, obj):
     except Exception as e:
         raise CustomException_ANIL(e,sys)
 
+def  evaluate_models(X_train,y_train,X_test,y_test,models:dict):
+    logging.info('evaluating the given models based on r2 score')
+    try:
+        report = dict()
+        for model_name,model in models.items():
+            model.fit(X_train, y_train)
+            preds = model.predict(X_test)
+            r2 = r2_score(y_test, preds)
+            report[model_name] = r2
+
+        return report
+    except Exception as e:
+        raise CustomException_ANIL(e, sys)
