@@ -91,8 +91,7 @@ class DataTransformation:
 
             return (
                 df_train_transformed,
-                df_test_transformed,
-                self.data_transformation_config.preprocessor_pkl_file_path
+                df_test_transformed
             )
 
         except Exception as e:
