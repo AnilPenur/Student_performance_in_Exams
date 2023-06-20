@@ -20,11 +20,19 @@ class DataTransformationConfig:
     preprocessor_pkl_file_path:str = os.path.join("artifacts","preprocessor.pkl")
 
 class DataTransformation:
+    '''DataTransformation Class:
+    It's constructor initialize the location for preprocessor pickel file to be saved.
+    `get_preprocessor_pkl_file()` will create preprocessing unioit ColumnTransformer using two different 
+    pipelines which will seperately handles categorical features and numerical features.
+    `initiate_data_transformation(train_path, test_path)` will take take path of train and tets datasets and 
+    seperatees this dataset according to target and input features and apply preprocessing on it. Trained preprocessing object is saved as pickel file.
+    Then combines the (target+input) features and return transformed train and test dataset.
+    '''
     def __init__(self):
         self.data_transformation_config = DataTransformationConfig()
 
     def get_preprocessor_pkl_file(self):
-        logging.info("Entered into get_preprocessor_pkl_file method")
+        logging.info("data_transformation.py:: Entered into get_preprocessor_pkl_file method")
         try:
             
             #add cat_featutres and Numerical feature in utils and import here
@@ -62,7 +70,7 @@ class DataTransformation:
         try: 
             df_train = pd.read_csv(train_path)
             df_test = pd.read_csv(test_path)
-            logging.info("The train and test dataset has been loaded")
+            logging.info("data_transformation.py:: The train and test dataset has been loaded")
 
             target_column = "math_score"
 
@@ -70,24 +78,24 @@ class DataTransformation:
             df_train_target_feature = df_train[target_column]
             df_test_input_feature = df_test.drop(columns=target_column, axis=1)
             df_test_target_feature = df_test[target_column]
-            logging.info("dependent and independent features are seprated")
+            logging.info("data_transformation.py:: dependent and independent features are seprated")
 
             preprocessor_object = self.get_preprocessor_pkl_file()
 
             df_train_input_feature_transformed = preprocessor_object.fit_transform(df_train_input_feature)
             df_test_input_feature_transformed = preprocessor_object.transform(df_test_input_feature)
-            logging.info("Independent feature are transformed using preprocessor object")
+            logging.info("data_transformation.py:: Independent feature are transformed using preprocessor object")
 
             df_train_transformed = np.c_[df_train_input_feature_transformed,np.array(df_train_target_feature)]
             df_test_transformed = np.c_[df_test_input_feature_transformed,np.array(df_test_target_feature)]
 
-            logging.info("independent feature and dependent feature dataset are merged and its value is returned")
+            logging.info("data_transformation.py:: independent feature and dependent feature dataset are merged and its value is returned")
 
             save_object(
                 file_path= self.data_transformation_config.preprocessor_pkl_file_path,
                 obj = preprocessor_object
             )
-            logging.info('Preprocessor file is created')
+            logging.info('data_transformation.py:: Preprocessor file is created')
 
             return (
                 df_train_transformed,

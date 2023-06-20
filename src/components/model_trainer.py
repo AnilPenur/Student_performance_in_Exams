@@ -29,12 +29,18 @@ class ModelTrainerConfig():
     trained_model_path:str = os.path.join('artifacts',"model.pkl")
 
 class ModelTrainer:
-    logging.info('Entered Model Trainer class')
+    """ModelTrainer Class::
+    It's constructor start with creating a location to save model.pkl file after the best model is created.
+    `initiate_model_training(train_array_t, test_arry_t)` method will take transformed array as input and 
+    split into test and train array which seperates the X and y. Various algorithms are applied on the dataset,
+    and the best model is dumped into pickel file.
+    """
+    logging.info('model_trainer.py:: Entered Model Trainer class')
     def __init__(self):
         self.model_trainer_config = ModelTrainerConfig()
 
     def initiate_model_training(self, train_array_t, test_arry_t):
-        logging.info('model training started')
+        logging.info('model_trainer.py:: model training started')
         try:
             X_train,y_train,X_test,y_test=(
                 train_array_t[:,:-1],
@@ -42,7 +48,7 @@ class ModelTrainer:
                 test_arry_t[:,:-1],
                 test_arry_t[:,-1]
             )
-            logging.info('X and y are seperated from train and test array')
+            logging.info('model_trainer.py:: X and y are seperated from train and test array')
 
             models:dict = {
                 'linear regression':LinearRegression(),
@@ -63,25 +69,25 @@ class ModelTrainer:
 
             # Check based on model score
             if best_model_score <=0.60:
-                raise CustomException_ANIL("Model performance is inadequate please try different settings")
+                raise CustomException_ANIL("model_trainer.py:: Model performance is inadequate please try different settings")
             else:
-                logging.info('Model performance is acceptable')
+                logging.info('model_trainer.py:: Model performance is acceptable')
             
-            logging.info(f"as per model_evaluation best model:{best_model_name} and best r2 score :{best_model_score}")
+            logging.info(f"model_trainer.py:: as per model_evaluation best model:{best_model_name} and best r2 score :{best_model_score}")
 
             best_model = models[best_model_name]
             best_model.fit(X_train,y_train)
             y_pred = best_model.predict(X_test)
             r2 = r2_score(y_test, y_pred)
 
-            logging.info('re-evaluating model and saving model to pickel file')
+            logging.info('model_trainer.py:: re-evaluating model and saving model to pickel file')
              
             save_object(
                 file_path=self.model_trainer_config.trained_model_path,
                 obj=best_model
              )
 
-            return r2
+            return "The best model is {} and having r2_score of {}".format(best_model_name, r2)
 
         except Exception as e:
             raise CustomException_ANIL(e, sys)

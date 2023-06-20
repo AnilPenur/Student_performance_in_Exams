@@ -16,11 +16,17 @@ class DataIngestionConfig:
     raw_dataset_path:str = os.path.join("artifacts",'raw.csv')
 
 class Data_Ingestion:
+    '''Data_Ingestion class 
+    Constructor will creates three paths for train, test and raw dataset.
+    Data is read from csv file, and spilted into train and test dataset.
+    Saved these files at their respective path and Finally returned the path for train and test dataset,
+     so that they are read whenever their requirement occures.
+    '''
     def __init__(self):
         self.data_ingestion_config = DataIngestionConfig()
 
     def initiate_data_ingestion(self):
-        logging.info('Data Ingestion has been started')
+        logging.info('data_ingestion.py:: Data Ingestion has been started')
         try:
             # Edit this path for new dataset
             dataset_path = "src/notebook/data/stud.csv"
@@ -28,7 +34,7 @@ class Data_Ingestion:
             df = pd.read_csv(dataset_path)
 
             train_set ,test_set = train_test_split(df , test_size= 0.2, random_state= 43)
-            logging.info("Dataset is splitted into train and test set having test size 20 percent")
+            logging.info("data_ingestion.py:: Dataset is splitted into train and test set having test size 20 percent")
 
             os.makedirs(name= os.path.dirname(self.data_ingestion_config.train_dataset_path),
                         exist_ok= True
@@ -38,7 +44,7 @@ class Data_Ingestion:
             test_set.to_csv(self.data_ingestion_config.test_dataset_path, index= False)
             df.to_csv(self.data_ingestion_config.raw_dataset_path, index= False)
 
-            logging.info("Data Ingestion is done, data saved in 'artifact' folder")
+            logging.info("data_ingestion.py:: Data Ingestion is done, data saved in 'artifact' folder")
 
             return (
                 self.data_ingestion_config.train_dataset_path,
