@@ -7,7 +7,8 @@ import pandas as pd
 from src.logger import logging
 from src.exception import CustomException_ANIL
 
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score,accuracy_score
+from sklearn.model_selection import GridSearchCV
 
 
 def save_object(file_path:str, obj):
@@ -21,16 +22,27 @@ def save_object(file_path:str, obj):
     except Exception as e:
         raise CustomException_ANIL(e,sys)
 
-def  evaluate_models(X_train,y_train,X_test,y_test,models:dict):
+def  evaluate_models(X_train,y_train,X_test,y_test,models:dict,params:dict):
     logging.info('evaluating the given models based on r2 score')
     try:
         report = dict()
         for model_name,model in models.items():
             logging.info(model)
+            parameter_dict = params[model_name]
+            gd = GridSearchCV(estimator=model, param_grid= parameter_dict,
+                              cv=3, n_jobs=-1,verbose=2 ,scoring=accuracy_score)
+            gd.fit(X = X_train, y = y_train)
+            logging.info(f'utils.py:: GridSearchCV best estimator: {gd.best_estimator_} ')
+            logging.info(f'utils.py:: GridSearchCV best parameters: {gd.best_params_} ')
+
+            model.set_params(**gd.best_params_)
             model.fit(X = X_train, y = y_train)
             preds = model.predict(X_test)
+
+            logging.info('utils.py:: best model is utilised to find r2 score')
             r2 = r2_score(y_test, preds)
             report[model_name] = r2
+            logging.info(f'utils.py:: best model is {model} and r2 score is {r2}')
 
         return report
     except Exception as e:
@@ -39,9 +51,12 @@ def  evaluate_models(X_train,y_train,X_test,y_test,models:dict):
 
 def load_object(file_path:str):
     '''It will help in loading object(pickel) file using dill module'''
+    logging.info("loading object is started")
     try:
         with open(file_path,mode="rb") as file_obj:
+            logging.info(f"object is saved at a file path:{file_path}")
             return dill.load(file_obj)
+        
     except Exception as e:
         raise CUstomException_ANIL(e,sys)
 
